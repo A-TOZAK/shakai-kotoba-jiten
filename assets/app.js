@@ -106,7 +106,7 @@ function renderCards() {
   grid.innerHTML = filtered.map((term) => {
     const counts = getCounts(term);
     return `
-      <button class="term-card" data-term-id="${term.id}" type="button">
+      <button class="term-card" data-term-id="${term.id}" data-grade="${term.grade}" type="button">
         <span class="term-card-top">
           <span>
             <strong class="term-name">${escapeHtml(term.term)}</strong>
