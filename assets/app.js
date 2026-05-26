@@ -337,6 +337,10 @@ function attachFilters() {
   document.body.addEventListener("click", (event) => {
     const feedbackButton = event.target.closest("[data-feedback-action]");
     if (feedbackButton) {
+      if (feedbackButton.dataset.feedbackAction === "add_word") {
+        window.open("https://docs.google.com/forms/d/e/1FAIpQLSdy_QglERenL2D4dMcTzQCGfw4m24Pur0MLVfsU-OBj_nCTCA/viewform", "_blank", "noopener");
+        return;
+      }
       openFeedback(feedbackButton.dataset.feedbackAction, feedbackButton.dataset.feedbackTermId);
       return;
     }
