@@ -467,9 +467,68 @@ h3 {
   background: rgba(21, 32, 43, 0.55);
 }
 
+.feedback-dialog {
+  width: min(680px, calc(100% - 28px));
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: var(--shadow);
+}
+
+.feedback-dialog::backdrop {
+  background: rgba(21, 32, 43, 0.55);
+}
+
 .dialog-body {
   position: relative;
   padding: 28px;
+}
+
+.feedback-form {
+  position: relative;
+  padding: 28px;
+  display: grid;
+  gap: 16px;
+}
+
+.feedback-note {
+  margin: 0;
+  color: var(--muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 14px;
+}
+
+.feedback-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 800;
+}
+
+.feedback-form input,
+.feedback-form select,
+.feedback-form textarea {
+  width: 100%;
+  border: 1px solid #b9c9d8;
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--ink);
+  background: #fff;
+  font-weight: 600;
+}
+
+.feedback-form textarea {
+  resize: vertical;
+}
+
+.feedback-form input:focus,
+.feedback-form select:focus,
+.feedback-form textarea:focus {
+  border-color: var(--blue);
+  outline: 3px solid rgba(31, 111, 178, 0.16);
 }
 
 .close-button {
@@ -630,5 +689,10 @@ h3 {
 
   .dialog-body {
     padding: 22px 16px;
+  }
+
+  .feedback-form,
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }

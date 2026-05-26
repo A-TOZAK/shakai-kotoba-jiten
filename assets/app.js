@@ -7,7 +7,17 @@ const state = {
   grade: "all",
   kana: "all",
   unit: "all",
-  thinkingTag: "all"
+  thinkingTag: "all",
+  issueStats: new Map(),
+  issueStatsLoaded: false
+};
+
+const feedbackLabels = {
+  view_log: "調べた",
+  helpful: "役に立った",
+  image_request: "図解希望",
+  add_word: "追加希望",
+  correction: "修正提案"
 };
 
 const iconPaths = {
@@ -31,41 +41,26 @@ function normalizeText(value) {
   return String(value || "").toLowerCase().replace(/\s+/g, "");
 }
 
-function logAction(term, action) {
-  const endpoint = DATA.config.trackingEndpoint;
-  if (!endpoint) return;
-
-  const payload = {
-    timestamp: new Date().toISOString(),
-    termId: term.id,
-    term: term.term,
-    grade: term.grade,
-    unit: term.unit,
-    action
-  };
-
-  try {
-    navigator.sendBeacon?.(endpoint, JSON.stringify(payload)) ||
-      fetch(endpoint, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-  } catch (error) {
-    console.warn("tracking skipped", error);
-  }
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-function formUrl(baseUrl, term, action) {
-  if (!baseUrl || baseUrl.includes("REPLACE_WITH")) return "#";
-  const url = new URL(baseUrl);
-  url.searchParams.set("term_id", term.id);
-  url.searchParams.set("term", term.term);
-  url.searchParams.set("grade", `${term.grade}`);
-  url.searchParams.set("unit", term.unit);
-  url.searchParams.set("action", action);
-  return url.toString();
+function getIssueStats(termId) {
+  return state.issueStats.get(termId) || {};
+}
+
+function getCounts(term) {
+  const stats = getIssueStats(term.id);
+  return {
+    viewCount: term.viewCount + (stats.view_log || 0),
+    helpfulCount: term.helpfulCount + (stats.helpful || 0),
+    imageRequestCount: term.imageRequestCount + (stats.image_request || 0)
+  };
 }
 
 function getFilteredTerms() {
@@ -95,9 +90,9 @@ function renderTagIcon(tagId, withLabel = true) {
   const tag = tagMap.get(tagId);
   if (!tag) return "";
   return `
-    <span class="thinking-pill" style="${tagStyle(tag)}" title="${tag.fullLabel}: ${tag.description}">
+    <span class="thinking-pill" style="${tagStyle(tag)}" title="${escapeHtml(`${tag.fullLabel}: ${tag.description}`)}">
       <span class="tag-icon" style="${tagStyle(tag)}">${iconSvg(tag.icon)}</span>
-      ${withLabel ? `<span>${tag.label}</span>` : ""}
+      ${withLabel ? `<span>${escapeHtml(tag.label)}</span>` : ""}
     </span>
   `;
 }
@@ -108,24 +103,27 @@ function renderCards() {
   document.querySelector("#resultCount").textContent = filtered.length;
   document.querySelector("#emptyState").hidden = filtered.length !== 0;
 
-  grid.innerHTML = filtered.map((term) => `
-    <button class="term-card" data-term-id="${term.id}" type="button">
-      <span class="term-card-top">
-        <span>
-          <strong class="term-name">${term.term}</strong>
-          <span class="reading">${term.reading}</span>
+  grid.innerHTML = filtered.map((term) => {
+    const counts = getCounts(term);
+    return `
+      <button class="term-card" data-term-id="${term.id}" type="button">
+        <span class="term-card-top">
+          <span>
+            <strong class="term-name">${escapeHtml(term.term)}</strong>
+            <span class="reading">${escapeHtml(term.reading)}</span>
+          </span>
+          <span class="grade-badge">${term.grade}年</span>
         </span>
-        <span class="grade-badge">${term.grade}年</span>
-      </span>
-      <span class="meaning">${term.meaning}</span>
-      <span class="term-meta">${term.thinkingTags.map((id) => renderTagIcon(id)).join("")}</span>
-      <span class="stats-row">
-        <span>閲覧 ${term.viewCount}回</span>
-        <span>役立った ${term.helpfulCount}</span>
-        <span>図解希望 ${term.imageRequestCount}/${DATA.config.imageRequestThreshold}</span>
-      </span>
-    </button>
-  `).join("");
+        <span class="meaning">${escapeHtml(term.meaning)}</span>
+        <span class="term-meta">${term.thinkingTags.map((id) => renderTagIcon(id)).join("")}</span>
+        <span class="stats-row">
+          <span>調べた ${counts.viewCount}回</span>
+          <span>役立った ${counts.helpfulCount}</span>
+          <span>図解希望 ${counts.imageRequestCount}/${DATA.config.imageRequestThreshold}</span>
+        </span>
+      </button>
+    `;
+  }).join("");
 
   grid.querySelectorAll(".term-card").forEach((card) => {
     card.addEventListener("click", () => openTerm(card.dataset.termId));
@@ -135,26 +133,26 @@ function renderCards() {
 function openTerm(termId) {
   const term = terms.find((item) => item.id === termId);
   if (!term) return;
-  logAction(term, "view");
 
   const dialog = document.querySelector("#termDialog");
-  const imageReady = term.imageRequestCount >= DATA.config.imageRequestThreshold;
-  const requestCountLabel = `${term.imageRequestCount}/${DATA.config.imageRequestThreshold}`;
+  const counts = getCounts(term);
+  const imageReady = counts.imageRequestCount >= DATA.config.imageRequestThreshold;
+  const requestCountLabel = `${counts.imageRequestCount}/${DATA.config.imageRequestThreshold}`;
 
   document.querySelector("#dialogContent").innerHTML = `
     <div class="dialog-title">
-      <p class="eyebrow">${term.grade}年 / ${term.unit}</p>
-      <h2>${term.term}</h2>
-      <p class="reading">${term.reading}</p>
+      <p class="eyebrow">${term.grade}年 / ${escapeHtml(term.unit)}</p>
+      <h2>${escapeHtml(term.term)}</h2>
+      <p class="reading">${escapeHtml(term.reading)}</p>
     </div>
     <div class="dialog-grid">
       <div class="detail-box">
         <h3>意味</h3>
-        <p>${term.meaning}</p>
+        <p>${escapeHtml(term.meaning)}</p>
         <h3>例文</h3>
-        <p>${term.example}</p>
+        <p>${escapeHtml(term.example)}</p>
         <h3>関連する言葉</h3>
-        <p>${term.relatedTerms.join(" / ")}</p>
+        <p>${term.relatedTerms.map(escapeHtml).join(" / ")}</p>
       </div>
       <div class="detail-box">
         <h3>社会科の見方・考え方</h3>
@@ -168,25 +166,25 @@ function openTerm(termId) {
       </div>
     </div>
     <div class="dialog-actions">
-      <a class="button solid" href="${formUrl(DATA.config.helpfulFormUrl, term, "helpful")}" target="_blank" rel="noreferrer" data-action="helpful">役に立った</a>
-      <a class="button soft" href="${formUrl(DATA.config.imageRequestFormUrl, term, "image_request")}" target="_blank" rel="noreferrer" data-action="image_request">図で解説してほしい</a>
-      <a class="button ghost" href="${formUrl(DATA.config.addWordFormUrl, term, "add_request")}" target="_blank" rel="noreferrer">関連する言葉を追加してほしい</a>
+      <button class="button solid" type="button" data-feedback-action="view_log" data-feedback-term-id="${term.id}">調べた記録を送る</button>
+      <button class="button soft" type="button" data-feedback-action="helpful" data-feedback-term-id="${term.id}">役に立った</button>
+      <button class="button soft" type="button" data-feedback-action="image_request" data-feedback-term-id="${term.id}">図で解説してほしい</button>
+      <button class="button ghost" type="button" data-feedback-action="correction" data-feedback-term-id="${term.id}">修正を提案する</button>
     </div>
-    <p class="source-note">根拠: ${term.source.join(" / ")}。説明文は子ども向けに独自作成した下書きです。</p>
+    <p class="source-note">根拠: ${term.source.map(escapeHtml).join(" / ")}。説明文は子ども向けに独自作成した下書きです。</p>
   `;
-
-  document.querySelectorAll("[data-action]").forEach((link) => {
-    link.addEventListener("click", () => logAction(term, link.dataset.action));
-  });
 
   if (typeof dialog.showModal === "function") dialog.showModal();
 }
 
 function renderKanaFilter() {
-  const kana = ["all", "あ", "か", "き", "け", "こ", "さ", "し", "す", "せ", "た", "ち", "て", "と", "な", "に", "の", "ひ", "ふ", "へ", "ほ", "む", "よ", "り"];
+  const kanaOrder = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわ";
+  const initials = [...new Set(terms.map((term) => term.initial))]
+    .sort((a, b) => kanaOrder.indexOf(a) - kanaOrder.indexOf(b));
+  const kana = ["all", ...initials];
   document.querySelector("#kanaFilter").innerHTML = kana.map((item) => `
     <button class="chip ${item === "all" ? "active" : ""}" data-filter-kind="kana" data-filter-value="${item}">
-      ${item === "all" ? "全" : item}
+      ${item === "all" ? "全" : escapeHtml(item)}
     </button>
   `).join("");
 }
@@ -195,7 +193,7 @@ function renderUnitFilter() {
   const units = [...new Set(terms.map((term) => term.unit))].sort((a, b) => a.localeCompare(b, "ja"));
   document.querySelector("#unitFilter").innerHTML = [
     `<button class="tag-button active" data-filter-kind="unit" data-filter-value="all">すべての単元</button>`,
-    ...units.map((unit) => `<button class="tag-button" data-filter-kind="unit" data-filter-value="${unit}">${unit}</button>`)
+    ...units.map((unit) => `<button class="tag-button" data-filter-kind="unit" data-filter-value="${escapeHtml(unit)}">${escapeHtml(unit)}</button>`)
   ].join("");
 }
 
@@ -205,7 +203,7 @@ function renderThinkingFilter() {
     ...DATA.thinkingTags.map((tag) => `
       <button class="tag-button" data-filter-kind="thinkingTag" data-filter-value="${tag.id}">
         <span class="tag-icon" style="${tagStyle(tag)}">${iconSvg(tag.icon)}</span>
-        <span>${tag.fullLabel}</span>
+        <span>${escapeHtml(tag.fullLabel)}</span>
       </button>
     `)
   ].join("");
@@ -217,8 +215,132 @@ function setActiveButtons(kind, value) {
   });
 }
 
+function openFeedback(action, termId = "") {
+  const term = terms.find((item) => item.id === termId);
+  const dialog = document.querySelector("#feedbackDialog");
+  const title = feedbackLabels[action] || "投稿";
+
+  document.querySelector("#feedbackAction").value = action;
+  document.querySelector("#feedbackTermId").value = term?.id || "";
+  document.querySelector("#feedbackTerm").value = term?.term || "";
+  document.querySelector("#feedbackGrade").value = term ? String(term.grade) : "";
+  document.querySelector("#feedbackComment").value = "";
+  document.querySelector("#feedbackTitle").textContent = `${title}を送る`;
+
+  const termInput = document.querySelector("#feedbackTerm");
+  termInput.readOnly = Boolean(term && action !== "add_word");
+  termInput.required = true;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+}
+
+function closeFeedback() {
+  document.querySelector("#feedbackDialog").close();
+}
+
+function createIssueUrl(payload) {
+  const marker = DATA.config.issueMarker;
+  const repo = DATA.config.githubRepo;
+  const title = `[${payload.label}] ${payload.term || "追加してほしい言葉"}`;
+  const body = [
+    marker,
+    "",
+    `action: ${payload.action}`,
+    `termId: ${payload.termId || ""}`,
+    `term: ${payload.term || ""}`,
+    `grade: ${payload.grade || ""}`,
+    `unit: ${payload.unit || ""}`,
+    "",
+    "comment:",
+    payload.comment || "（メモなし）",
+    "",
+    "---",
+    "このIssueは社会ことば辞典のサイト内フォームから作成されました。"
+  ].join("\n");
+
+  const url = new URL(`https://github.com/${repo}/issues/new`);
+  url.searchParams.set("title", title);
+  url.searchParams.set("body", body);
+  if (DATA.config.issueLabels) url.searchParams.set("labels", DATA.config.issueLabels);
+  return url.toString();
+}
+
+function submitFeedback(event) {
+  event.preventDefault();
+  const action = document.querySelector("#feedbackAction").value;
+  const termId = document.querySelector("#feedbackTermId").value;
+  const term = terms.find((item) => item.id === termId);
+  const payload = {
+    action,
+    label: feedbackLabels[action] || "投稿",
+    termId: term?.id || "",
+    term: document.querySelector("#feedbackTerm").value.trim(),
+    grade: document.querySelector("#feedbackGrade").value,
+    unit: term?.unit || "",
+    comment: document.querySelector("#feedbackComment").value.trim()
+  };
+
+  if (!payload.term) return;
+  window.open(createIssueUrl(payload), "_blank", "noreferrer");
+  closeFeedback();
+}
+
+function parseIssueBody(body) {
+  if (!body || !body.includes(DATA.config.issueMarker)) return null;
+  const lines = body.split(/\r?\n/);
+  const record = {};
+  for (const line of lines) {
+    const match = line.match(/^([A-Za-z]+):\s*(.*)$/);
+    if (match) record[match[1]] = match[2].trim();
+  }
+  if (!record.action) return null;
+  return {
+    action: record.action,
+    termId: record.termId || "",
+    term: record.term || ""
+  };
+}
+
+async function loadIssueStats() {
+  const status = document.querySelector("#issueStatsStatus");
+  const repo = DATA.config.githubRepo;
+  if (!repo) return;
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, {
+      headers: { Accept: "application/vnd.github+json" }
+    });
+    if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+    const issues = await response.json();
+    const stats = new Map();
+
+    for (const issue of issues) {
+      if (issue.pull_request) continue;
+      const record = parseIssueBody(issue.body);
+      if (!record || !record.termId) continue;
+      const current = stats.get(record.termId) || {};
+      current[record.action] = (current[record.action] || 0) + 1;
+      stats.set(record.termId, current);
+    }
+
+    state.issueStats = stats;
+    state.issueStatsLoaded = true;
+    status.textContent = `GitHub Issuesから${issues.length}件を確認しました。投稿が増えるとランキングに反映されます。`;
+    renderCards();
+    renderRanking();
+  } catch (error) {
+    status.textContent = "GitHub Issuesの読み込みに失敗しました。初期データのランキングを表示しています。";
+    console.warn(error);
+  }
+}
+
 function attachFilters() {
   document.body.addEventListener("click", (event) => {
+    const feedbackButton = event.target.closest("[data-feedback-action]");
+    if (feedbackButton) {
+      openFeedback(feedbackButton.dataset.feedbackAction, feedbackButton.dataset.feedbackTermId);
+      return;
+    }
+
     const button = event.target.closest("[data-filter-kind]");
     if (!button) return;
     const kind = button.dataset.filterKind;
@@ -247,31 +369,47 @@ function attachFilters() {
   document.querySelector("#closeDialog").addEventListener("click", () => {
     document.querySelector("#termDialog").close();
   });
+
+  document.querySelector("#closeFeedbackDialog").addEventListener("click", closeFeedback);
+  document.querySelector("#cancelFeedback").addEventListener("click", closeFeedback);
+  document.querySelector("#feedbackForm").addEventListener("submit", submitFeedback);
 }
 
 function renderRanking() {
-  const byViews = [...terms].sort((a, b) => b.viewCount - a.viewCount).slice(0, 6);
-  const byImages = [...terms].sort((a, b) => b.imageRequestCount - a.imageRequestCount).slice(0, 6);
+  const byViews = [...terms]
+    .sort((a, b) => getCounts(b).viewCount - getCounts(a).viewCount)
+    .slice(0, 8);
+  const byImages = [...terms]
+    .sort((a, b) => getCounts(b).imageRequestCount - getCounts(a).imageRequestCount)
+    .slice(0, 8);
+  const hasViewStats = byViews.some((term) => getCounts(term).viewCount > 0);
+  const hasImageStats = byImages.some((term) => getCounts(term).imageRequestCount > 0);
 
-  document.querySelector("#viewRanking").innerHTML = byViews.map((term) => `
-    <li><span class="rank-item"><span>${term.term}</span><span class="rank-count">${term.viewCount}回</span></span></li>
-  `).join("");
+  document.querySelector("#viewRanking").innerHTML = hasViewStats ? byViews.map((term) => {
+    const counts = getCounts(term);
+    return `
+      <li><span class="rank-item"><span>${escapeHtml(term.term)}</span><span class="rank-count">${counts.viewCount}回</span></span></li>
+    `;
+  }).join("") : `<li><span class="rank-item"><span>まだ投稿がありません</span><span class="rank-count">0回</span></span></li>`;
 
-  document.querySelector("#imageRanking").innerHTML = byImages.map((term) => `
-    <li><span class="rank-item"><span>${term.term}</span><span class="rank-count">${term.imageRequestCount}件</span></span></li>
-  `).join("");
+  document.querySelector("#imageRanking").innerHTML = hasImageStats ? byImages.map((term) => {
+    const counts = getCounts(term);
+    return `
+      <li><span class="rank-item"><span>${escapeHtml(term.term)}</span><span class="rank-count">${counts.imageRequestCount}件</span></span></li>
+    `;
+  }).join("") : `<li><span class="rank-item"><span>まだ投稿がありません</span><span class="rank-count">0件</span></span></li>`;
 
   const totals = DATA.thinkingTags.map((tag) => ({
     ...tag,
     total: terms
       .filter((term) => term.thinkingTags.includes(tag.id))
-      .reduce((sum, term) => sum + term.viewCount, 0)
+      .reduce((sum, term) => sum + getCounts(term).viewCount, 0)
   }));
-  const max = Math.max(...totals.map((item) => item.total));
+  const max = Math.max(...totals.map((item) => item.total), 1);
 
   document.querySelector("#thinkingStats").innerHTML = totals.map((item) => `
     <div class="stat-line">
-      <span>${item.label}</span>
+      <span>${escapeHtml(item.label)}</span>
       <span class="stat-bar"><span style="width:${Math.round((item.total / max) * 100)}%;background:${item.color}"></span></span>
       <span>${item.total}</span>
     </div>
@@ -279,13 +417,13 @@ function renderRanking() {
 }
 
 function init() {
-  document.querySelector("#addWordLink").href = DATA.config.addWordFormUrl;
   renderKanaFilter();
   renderUnitFilter();
   renderThinkingFilter();
   attachFilters();
   renderCards();
   renderRanking();
+  loadIssueStats();
 }
 
 init();
