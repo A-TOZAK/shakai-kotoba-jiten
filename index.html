@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="小学校3〜6年生社会の用語を、やさしい意味・例文・見方考え方タグで調べられる教材サイト。">
+    <title>社会ことば辞典</title>
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div>
+          <p class="brand-kicker">神教材製作所</p>
+          <h1>社会ことば辞典</h1>
+          <p class="lead">子どもの「分からない言葉」から育つ、社会科の用語辞典。</p>
+        </div>
+        <div class="header-actions" aria-label="投稿フォーム">
+          <a class="button ghost" id="addWordLink" href="#" target="_blank" rel="noreferrer">
+            <span aria-hidden="true">＋</span>
+            追加してほしい言葉
+          </a>
+          <a class="button solid" href="#ranking">
+            <span aria-hidden="true">↗</span>
+            よく調べられた言葉
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-band" aria-labelledby="searchTitle">
+        <div class="search-inner">
+          <div class="search-copy">
+            <h2 id="searchTitle">言葉を調べる</h2>
+            <p>ひらがな、漢字、単元名、例文の言葉でも探せます。</p>
+          </div>
+          <label class="search-box">
+            <span class="visually-hidden">検索する言葉</span>
+            <input id="searchInput" type="search" placeholder="例: 方位、消防署、国会、くらし" autocomplete="off">
+          </label>
+          <div class="quick-filters" aria-label="学年でしぼりこむ">
+            <button class="chip active" data-filter-kind="grade" data-filter-value="all">すべて</button>
+            <button class="chip" data-filter-kind="grade" data-filter-value="3">3年</button>
+            <button class="chip" data-filter-kind="grade" data-filter-value="4">4年</button>
+            <button class="chip" data-filter-kind="grade" data-filter-value="5">5年</button>
+            <button class="chip" data-filter-kind="grade" data-filter-value="6">6年</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tool-layout" aria-label="社会ことば辞典">
+        <aside class="filters-panel">
+          <div class="panel-block">
+            <h2>あいうえお順</h2>
+            <div class="kana-grid" id="kanaFilter" aria-label="五十音で探す"></div>
+          </div>
+          <div class="panel-block">
+            <h2>単元で探す</h2>
+            <div class="unit-list" id="unitFilter"></div>
+          </div>
+          <div class="panel-block">
+            <h2>見方・考え方</h2>
+            <div class="thinking-list" id="thinkingFilter"></div>
+          </div>
+        </aside>
+
+        <section class="results-area">
+          <div class="results-head">
+            <div>
+              <p class="eyebrow">用語一覧</p>
+              <h2><span id="resultCount">0</span>語</h2>
+            </div>
+            <button class="button soft" id="resetFilters">しぼりこみをリセット</button>
+          </div>
+          <div class="term-grid" id="termGrid"></div>
+          <p class="empty-state" id="emptyState" hidden>見つかりませんでした。別の言葉で検索してみてください。</p>
+        </section>
+      </section>
+
+      <section class="ranking-band" id="ranking" aria-labelledby="rankingTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">つまずきの見える化</p>
+            <h2 id="rankingTitle">みんながよく調べている言葉</h2>
+          </div>
+          <p>公開時はGoogleスプレッドシート集計に差し替えます。今は初期データの仮ランキングです。</p>
+        </div>
+        <div class="ranking-grid">
+          <article class="ranking-panel">
+            <h3>閲覧ランキング</h3>
+            <ol id="viewRanking"></ol>
+          </article>
+          <article class="ranking-panel">
+            <h3>図解リクエスト</h3>
+            <ol id="imageRanking"></ol>
+          </article>
+          <article class="ranking-panel">
+            <h3>見方・考え方別</h3>
+            <div id="thinkingStats" class="tag-stats"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="term-dialog" id="termDialog">
+      <div class="dialog-body">
+        <button class="icon-button close-button" id="closeDialog" aria-label="閉じる">×</button>
+        <div id="dialogContent"></div>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">
+      <p>社会ことば辞典 / 神教材製作所</p>
+      <p>説明・例文・図解は授業で確認しながら育てていく教材データです。</p>
+    </footer>
+
+    <script src="data/terms.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
