@@ -1,2 +1,6 @@
 artifacts/research-data-0527-pdfs/
 artifacts/research-data-0527-text/
+.DS_Store
+r6shakai*_ruby.pdf
+artifacts/textbook-text/
+artifacts/textbook-analysis/grade*-*.txt
