@@ -475,6 +475,43 @@ h3 {
   outline: 3px solid rgba(31, 111, 178, 0.15);
 }
 
+/* Googleフォームボタン */
+.gform-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md);
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+}
+.gform-btn:hover { background: #1558b0; border-color: #1558b0; }
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.or-divider::before,
+.or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.github-label {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .close-button { position: absolute; top: 14px; right: 14px; }
 .icon-button {
   width: 38px;

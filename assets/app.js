@@ -20,6 +20,15 @@ const feedbackLabels = {
   correction: "修正提案"
 };
 
+// Googleフォーム URL（GASで作成したフォームの回答URL）
+const googleFormUrls = {
+  add_word:      "https://docs.google.com/forms/d/e/1FAIpQLSfN4o0kxUThyZajWw6gqnSNQ6STu92WrQHEuZJv_ZbGqxKOgA/viewform",
+  view_log:      "https://docs.google.com/forms/d/e/1FAIpQLScYONu5KEYAGI8hswo5-gM_WtzapsurNi6Q5XpMmu8nUugNYQ/viewform",
+  helpful:       "https://docs.google.com/forms/d/e/1FAIpQLSeXXx1PFSeIjnQ1HVq8sWYdrYhsmSBWPcPFxY-_qJaQ6SJZMA/viewform",
+  image_request: "https://docs.google.com/forms/d/e/1FAIpQLSfF71BKVMunCebsb02AeO9j9X5eCPHIayIMMuhiEoQtqpJ9wQ/viewform",
+  correction:    "https://docs.google.com/forms/d/e/1FAIpQLSfEdOGc-b0GSouR7Gab7YsTsbL2SntOROlpdBVskjJ4SmtN6A/viewform"
+};
+
 const iconPaths = {
   "map-pin": '<path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -219,6 +228,7 @@ function openFeedback(action, termId = "") {
   const term = terms.find((item) => item.id === termId);
   const dialog = document.querySelector("#feedbackDialog");
   const title = feedbackLabels[action] || "投稿";
+  const googleUrl = googleFormUrls[action] || "";
 
   document.querySelector("#feedbackAction").value = action;
   document.querySelector("#feedbackTermId").value = term?.id || "";
@@ -226,6 +236,18 @@ function openFeedback(action, termId = "") {
   document.querySelector("#feedbackGrade").value = term ? String(term.grade) : "";
   document.querySelector("#feedbackComment").value = "";
   document.querySelector("#feedbackTitle").textContent = `${title}を送る`;
+
+  // Googleフォームセクションを動的に挿入
+  const gSection = document.querySelector("#googleFormSection");
+  if (gSection) {
+    gSection.innerHTML = googleUrl ? `
+      <a class="button solid gform-btn" href="${escapeHtml(googleUrl)}" target="_blank" rel="noopener">
+        📋 Googleフォームで送る（アカウント不要）
+      </a>
+      <div class="or-divider"><span>または</span></div>
+      <p class="github-label">GitHubアカウントをお持ちの方はこちら</p>
+    ` : "";
+  }
 
   const termInput = document.querySelector("#feedbackTerm");
   termInput.readOnly = Boolean(term && action !== "add_word");
@@ -338,7 +360,7 @@ function attachFilters() {
     const feedbackButton = event.target.closest("[data-feedback-action]");
     if (feedbackButton) {
       if (feedbackButton.dataset.feedbackAction === "add_word") {
-        window.open("https://docs.google.com/forms/d/e/1FAIpQLSdy_QglERenL2D4dMcTzQCGfw4m24Pur0MLVfsU-OBj_nCTCA/viewform", "_blank", "noopener");
+        window.open(googleFormUrls.add_word, "_blank", "noopener");
         return;
       }
       openFeedback(feedbackButton.dataset.feedbackAction, feedbackButton.dataset.feedbackTermId);
