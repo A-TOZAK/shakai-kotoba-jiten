@@ -1,6 +1,7 @@
 const DATA = window.SHAKAI_KOTOBA_DATA;
 const terms = DATA.terms;
 const tagMap = new Map(DATA.thinkingTags.map((tag) => [tag.id, tag]));
+const referenceNote = DATA.config.referenceNote || "学習指導要領、教科書、年間指導計画を参考に作成。";
 
 const state = {
   query: "",
@@ -180,10 +181,16 @@ function openTerm(termId) {
       <button class="button soft" type="button" data-feedback-action="image_request" data-feedback-term-id="${term.id}">図で解説してほしい</button>
       <button class="button ghost" type="button" data-feedback-action="correction" data-feedback-term-id="${term.id}">修正を提案する</button>
     </div>
-    <p class="source-note">根拠: ${term.source.map(escapeHtml).join(" / ")}。説明文は子ども向けに独自作成した下書きです。</p>
+    <p class="source-note">根拠: ${escapeHtml(referenceNote)}</p>
   `;
 
   if (typeof dialog.showModal === "function") dialog.showModal();
+}
+
+function renderEdition() {
+  document.querySelectorAll("[data-edition-label]").forEach((item) => {
+    item.textContent = DATA.config.editionLabel || "第2版";
+  });
 }
 
 function renderKanaFilter() {
@@ -443,6 +450,7 @@ function renderRanking() {
 }
 
 function init() {
+  renderEdition();
   renderKanaFilter();
   renderUnitFilter();
   renderThinkingFilter();

@@ -60,6 +60,16 @@ h1, h2, h3, p { margin-top: 0; }
   font-weight: 700;
   letter-spacing: 0.05em;
 }
+.edition-badge {
+  margin-left: 8px;
+  padding: 3px 8px;
+  border: 1px solid #b8dccb;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #206548;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+}
 h1 {
   margin-bottom: 10px;
   font-size: clamp(2rem, 6vw, 4rem);
