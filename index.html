@@ -3,155 +3,94 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="小学校3〜6年生社会の用語を、やさしい意味・例文・見方考え方タグで調べられる教材サイト。第2版。">
-    <title>社会ことば辞典 第2版</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <meta name="description" content="小学校3〜6年生の社会科の言葉389語を、やさしい意味・例文・図解で調べられる用語辞典。すべての言葉に図解つき。">
+    <title>社会ことば辞典 第3版 | School Stock</title>
+    <link rel="stylesheet" href="assets/styles.css?v=3">
   </head>
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <div>
-          <p class="brand-kicker">🏫 神教材製作所 <span class="edition-badge" data-edition-label>第2版</span></p>
-          <h1>📖 社会ことば辞典</h1>
-          <p class="lead">分からない言葉をすぐに調べよう！3〜6年生の社会科の言葉がたくさん。</p>
-        </div>
-        <div class="header-actions" aria-label="投稿フォーム">
-          <button class="button ghost" id="addWordLink" type="button" data-feedback-action="add_word">
-            <span aria-hidden="true">＋</span>
-            追加してほしい言葉
-          </button>
-          <a class="button solid" href="#ranking">
-            <span aria-hidden="true">↗</span>
-            よく調べられた言葉
-          </a>
-        </div>
+        <p class="brand-line"><span class="brand">School Stock</span><span class="edition" data-edition-label>第3版</span></p>
+        <h1>社会<span class="accent">ことば</span>辞典</h1>
+        <p class="lead">社会科のことばを、図で調べる辞典。<strong>3〜6年生の389語、ぜんぶに図解つき。</strong></p>
       </div>
     </header>
 
-    <main>
-      <section class="search-band" aria-labelledby="searchTitle">
-        <div class="search-inner">
-          <div class="search-copy">
-            <h2 id="searchTitle">🔍 言葉を調べる</h2>
-            <p>ひらがな・漢字・単元名でも探せます。</p>
-          </div>
-          <label class="search-box">
-            <span class="visually-hidden">検索する言葉</span>
-            <input id="searchInput" type="search" placeholder="例: 方位、消防署、国会、くらし" autocomplete="off">
-          </label>
-          <div class="quick-filters" aria-label="学年でしぼりこむ">
-            <button class="chip active" data-filter-kind="grade" data-filter-value="all">すべて</button>
-            <button class="chip" data-filter-kind="grade" data-filter-value="3">3年</button>
-            <button class="chip" data-filter-kind="grade" data-filter-value="4">4年</button>
-            <button class="chip" data-filter-kind="grade" data-filter-value="5">5年</button>
-            <button class="chip" data-filter-kind="grade" data-filter-value="6">6年</button>
-          </div>
+    <div class="search-band">
+      <div class="search-inner">
+        <label class="search-box">
+          <span class="visually-hidden">調べたい言葉</span>
+          <input id="searchInput" type="search" placeholder="例: 方位、消防署、国会" autocomplete="off">
+        </label>
+        <div class="grade-chips" role="group" aria-label="学年でしぼりこむ">
+          <button class="chip active" data-filter-kind="grade" data-filter-value="all">すべて</button>
+          <button class="chip" data-filter-kind="grade" data-filter-value="3">3年</button>
+          <button class="chip" data-filter-kind="grade" data-filter-value="4">4年</button>
+          <button class="chip" data-filter-kind="grade" data-filter-value="5">5年</button>
+          <button class="chip" data-filter-kind="grade" data-filter-value="6">6年</button>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <section class="tool-layout" aria-label="社会ことば辞典">
-        <aside class="filters-panel">
-          <div class="panel-block">
-            <h2>🔤 あいうえお順</h2>
-            <div class="kana-grid" id="kanaFilter" aria-label="五十音で探す"></div>
-          </div>
-          <div class="panel-block">
-            <h2>📚 単元で探す</h2>
-            <div class="unit-list" id="unitFilter"></div>
-          </div>
-          <div class="panel-block">
-            <h2>💡 見方・考え方</h2>
-            <div class="thinking-list" id="thinkingFilter"></div>
-          </div>
-        </aside>
+    <main class="tool-layout">
+      <aside class="filters-panel" aria-label="しぼりこみ">
+        <details class="panel-block" id="kanaBlock" open>
+          <summary>あいうえお順</summary>
+          <div class="kana-grid" id="kanaFilter"></div>
+        </details>
+        <details class="panel-block" id="unitBlock">
+          <summary>単元でさがす</summary>
+          <div class="tag-list" id="unitFilter"></div>
+        </details>
+        <details class="panel-block" id="thinkingBlock">
+          <summary>見方・考え方</summary>
+          <div class="tag-list" id="thinkingFilter"></div>
+        </details>
+      </aside>
 
-        <section class="results-area">
-          <div class="results-head">
-            <div>
-              <p class="eyebrow">用語一覧</p>
-              <h2><span id="resultCount">0</span>語</h2>
-            </div>
-            <button class="button soft" id="resetFilters">しぼりこみをリセット</button>
-          </div>
-          <div class="term-grid" id="termGrid"></div>
-          <p class="empty-state" id="emptyState" hidden>見つかりませんでした。別の言葉で検索してみてください。</p>
-        </section>
-      </section>
-
-      <section class="ranking-band" id="ranking" aria-labelledby="rankingTitle">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">つまずきの見える化</p>
-            <h2 id="rankingTitle">⭐ みんながよく調べている言葉</h2>
-          </div>
-          <p id="issueStatsStatus">GitHub Issuesの投稿を読み込んで、教材改善の声を集計します。</p>
+      <section class="results-area" aria-label="用語一覧">
+        <div class="results-head">
+          <p class="count"><span id="resultCount">0</span><small>語</small></p>
+          <button class="reset-button" id="resetFilters" type="button">しぼりこみをリセット</button>
         </div>
-        <div class="ranking-grid">
-          <article class="ranking-panel">
-            <h3>閲覧ランキング</h3>
-            <ol id="viewRanking"></ol>
-          </article>
-          <article class="ranking-panel">
-            <h3>図解リクエスト</h3>
-            <ol id="imageRanking"></ol>
-          </article>
-          <article class="ranking-panel">
-            <h3>見方・考え方別</h3>
-            <div id="thinkingStats" class="tag-stats"></div>
-          </article>
-        </div>
+        <div class="term-grid" id="termGrid"></div>
+        <button class="show-more" id="showMore" type="button" hidden>つづきを見る</button>
+        <p class="empty-state" id="emptyState" hidden>見つかりませんでした。別の言葉で検索してみてください。</p>
       </section>
     </main>
 
+    <section class="teacher-band">
+      <div class="teacher-inner">
+        <h2>先生・おうちの方へ</h2>
+        <div>
+          <p>意味・例文・図解はすべて自作です。学習指導要領・教科書・年間指導計画を参考に、授業で確認しながら育てている教材データです。</p>
+          <div class="form-links">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfN4o0kxUThyZajWw6gqnSNQ6STu92WrQHEuZJv_ZbGqxKOgA/viewform" target="_blank" rel="noopener">追加してほしい言葉を送る</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfEdOGc-b0GSouR7Gab7YsTsbL2SntOROlpdBVskjJ4SmtN6A/viewform" target="_blank" rel="noopener">まちがい・直したいところを送る</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <dialog class="term-dialog" id="termDialog">
       <div class="dialog-body">
-        <button class="icon-button close-button" id="closeDialog" aria-label="閉じる">×</button>
+        <button class="close-button" id="closeDialog" type="button" aria-label="閉じる">×</button>
         <div id="dialogContent"></div>
       </div>
     </dialog>
 
-    <dialog class="feedback-dialog" id="feedbackDialog">
-      <form class="feedback-form" id="feedbackForm" method="dialog">
-        <button class="icon-button close-button" id="closeFeedbackDialog" type="button" aria-label="閉じる">×</button>
-        <p class="eyebrow">GitHubに記録する</p>
-        <h2 id="feedbackTitle">投稿フォーム</h2>
-        <div id="googleFormSection"></div>
-        <p class="feedback-note">GitHubに投稿すると、ランキングや図解リクエストの集計に使われます。</p>
-        <input id="feedbackAction" type="hidden">
-        <input id="feedbackTermId" type="hidden">
-        <div class="form-grid">
-          <label>
-            <span>言葉</span>
-            <input id="feedbackTerm" type="text" placeholder="例: 消防署" required>
-          </label>
-          <label>
-            <span>学年</span>
-            <select id="feedbackGrade">
-              <option value="">わからない</option>
-              <option value="3">3年</option>
-              <option value="4">4年</option>
-              <option value="5">5年</option>
-              <option value="6">6年</option>
-            </select>
-          </label>
-        </div>
-        <label>
-          <span>メモ</span>
-          <textarea id="feedbackComment" rows="5" placeholder="どこが分かりにくかったか、どんな図がほしいか、追加してほしい理由など"></textarea>
-        </label>
-        <div class="dialog-actions">
-          <button class="button solid" type="submit">GitHubに投稿する</button>
-          <button class="button ghost" id="cancelFeedback" type="button">キャンセル</button>
-        </div>
-      </form>
-    </dialog>
-
     <footer class="site-footer">
-      <p>社会ことば辞典 <span data-edition-label>第2版</span> / 神教材製作所</p>
-      <p>説明・例文・図解は授業で確認しながら育てていく教材データです。</p>
+      <div class="inner">
+        <p>社会ことば辞典 <span data-edition-label>第3版</span></p>
+        <p>© School Stock</p>
+      </div>
     </footer>
 
-    <script src="data/terms.js"></script>
-    <script src="assets/app.js"></script>
+    <script src="data/terms.js?v=3"></script>
+    <script src="data/zukai/zukai_g3.js?v=3"></script>
+    <script src="data/zukai/zukai_g4.js?v=3"></script>
+    <script src="data/zukai/zukai_g5.js?v=3"></script>
+    <script src="data/zukai/zukai_g6.js?v=3"></script>
+    <script src="assets/app.js?v=3"></script>
   </body>
 </html>

@@ -5,8 +5,8 @@ const thinkingTags = [
     label: "場所",
     fullLabel: "場所・広がり",
     description: "どこにあるか、どのように広がっているかに注目する見方です。",
-    color: "#1f6fb2",
-    bg: "#e6f2fb",
+    color: "#29527a",
+    bg: "#eef3f8",
     icon: "map-pin"
   },
   {
@@ -14,8 +14,8 @@ const thinkingTags = [
     label: "変化",
     fullLabel: "時間・変化",
     description: "昔と今、これからの変化に注目する見方です。",
-    color: "#6b5bbf",
-    bg: "#f0edff",
+    color: "#5b4a7a",
+    bg: "#f0edf6",
     icon: "clock"
   },
   {
@@ -23,8 +23,8 @@ const thinkingTags = [
     label: "人",
     fullLabel: "人々の働き",
     description: "だれが、どんな役割を果たしているかに注目する見方です。",
-    color: "#287a5b",
-    bg: "#e8f5ee",
+    color: "#2f7a54",
+    bg: "#e9f3ee",
     icon: "users"
   },
   {
@@ -32,8 +32,8 @@ const thinkingTags = [
     label: "つながり",
     fullLabel: "つながり",
     description: "人、もの、地域、仕事がどう関係しているかに注目する見方です。",
-    color: "#167a92",
-    bg: "#e7f8fb",
+    color: "#2a6a78",
+    bg: "#e8f2f4",
     icon: "network"
   },
   {
@@ -41,8 +41,8 @@ const thinkingTags = [
     label: "工夫",
     fullLabel: "工夫・努力",
     description: "よりよくするための工夫や努力に注目する見方です。",
-    color: "#b7791f",
-    bg: "#fff6dd",
+    color: "#8a5a2a",
+    bg: "#f6efe4",
     icon: "lightbulb"
   },
   {
@@ -50,8 +50,8 @@ const thinkingTags = [
     label: "くらし",
     fullLabel: "くらしとの関係",
     description: "自分たちの生活とどう関係しているかに注目する見方です。",
-    color: "#b5433d",
-    bg: "#fff0ee",
+    color: "#9a4636",
+    bg: "#f8ece9",
     icon: "home"
   }
 ];
@@ -500,7 +500,7 @@ const terms = termRows.map((row, index) => {
 
 window.SHAKAI_KOTOBA_DATA = {
   config: {
-    editionLabel: "第2版",
+    editionLabel: "第3版",
     referenceNote: "学習指導要領、教科書、年間指導計画を参考に作成。",
     githubRepo: "A-TOZAK/shakai-kotoba-jiten",
     issueMarker: "[shakai-kotoba-jiten]",

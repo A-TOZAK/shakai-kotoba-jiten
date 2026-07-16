@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>図解 検品一覧 | 社会ことば辞典</title>
+    <style>
+      body { margin: 0; padding: 24px; background: #f2f1ec; font-family: "Hiragino Sans", sans-serif; color: #20242b; }
+      h1 { font-size: 1.2rem; }
+      .meta { color: #5a6069; font-size: 0.85rem; margin-bottom: 20px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+      .item { background: #fff; border: 1px solid #d9d6ce; border-radius: 4px; padding: 12px; }
+      .item h2 { font-size: 0.95rem; margin: 0 0 2px; }
+      .item p { font-size: 0.78rem; color: #5a6069; margin: 0 0 8px; }
+      .item svg { width: 100%; height: auto; display: block; border: 1px solid #eee; }
+      .item svg text { font-family: "Hiragino Sans", sans-serif; }
+      .missing { background: #fbe3d8; }
+      .controls { margin-bottom: 16px; display: flex; gap: 8px; }
+      .controls button { padding: 6px 14px; border: 1px solid #b9b5aa; background: #fff; border-radius: 3px; cursor: pointer; }
+      .controls button.on { background: #20242b; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <h1>図解 検品一覧</h1>
+    <p class="meta" id="meta"></p>
+    <div class="controls" id="controls"></div>
+    <div class="grid" id="grid"></div>
+    <script src="data/terms.js"></script>
+    <script src="data/zukai/zukai_g3.js"></script>
+    <script src="data/zukai/zukai_g4.js"></script>
+    <script src="data/zukai/zukai_g5.js"></script>
+    <script src="data/zukai/zukai_g6.js"></script>
+    <script>
+      const terms = window.SHAKAI_KOTOBA_DATA.terms;
+      const zukai = window.SHAKAI_ZUKAI || {};
+      let grade = "all";
+
+      function render() {
+        const list = terms.filter(t => grade === "all" || String(t.grade) === grade);
+        const done = list.filter(t => zukai[t.id]).length;
+        document.querySelector("#meta").textContent =
+          `${list.length}語中 ${done}語に図解あり（未作成 ${list.length - done}）`;
+        document.querySelector("#grid").innerHTML = list.map(t => `
+          <div class="item ${zukai[t.id] ? "" : "missing"}">
+            <h2>${t.term}（${t.grade}年）</h2>
+            <p>${t.unit}｜${t.meaning}</p>
+            ${zukai[t.id] ? zukai[t.id].svg : "<p>未作成</p>"}
+          </div>
+        `).join("");
+      }
+
+      document.querySelector("#controls").innerHTML =
+        ["all", "3", "4", "5", "6"].map(g =>
+          `<button data-g="${g}" class="${g === "all" ? "on" : ""}">${g === "all" ? "全学年" : g + "年"}</button>`
+        ).join("");
+      document.querySelector("#controls").addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        grade = b.dataset.g;
+        document.querySelectorAll("#controls button").forEach(x => x.classList.toggle("on", x === b));
+        render();
+      });
+      render();
+    </script>
+  </body>
+</html>
