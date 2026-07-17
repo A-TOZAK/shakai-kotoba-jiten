@@ -1,5 +1,6 @@
 const DATA = window.SHAKAI_KOTOBA_DATA;
 const ZUKAI = window.SHAKAI_ZUKAI || {};
+const ILLUST = window.SHAKAI_ILLUST || {};
 const terms = DATA.terms;
 const tagMap = new Map(DATA.thinkingTags.map((tag) => [tag.id, tag]));
 
@@ -140,7 +141,7 @@ function openTerm(termId) {
 
   const dialog = document.querySelector("#termDialog");
   const zukai = ZUKAI[term.id];
-  const personImg = PERSON_IMG[term.id];
+  const personImg = PERSON_IMG[term.id] || (ILLUST[term.id] ? `assets/img/illust/${term.id}.webp` : "");
 
   document.querySelector("#dialogContent").innerHTML = `
     <div class="dialog-title" style="--grade-color:${GRADE_COLORS[term.grade]}">
