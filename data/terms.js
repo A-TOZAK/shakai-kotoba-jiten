@@ -500,7 +500,7 @@ const terms = termRows.map((row, index) => {
 
 window.SHAKAI_KOTOBA_DATA = {
   config: {
-    editionLabel: "第3版",
+    editionLabel: "第4版",
     referenceNote: "学習指導要領、教科書、年間指導計画を参考に作成。",
     githubRepo: "A-TOZAK/shakai-kotoba-jiten",
     issueMarker: "[shakai-kotoba-jiten]",

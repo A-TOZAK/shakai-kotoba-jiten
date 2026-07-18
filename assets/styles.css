@@ -431,6 +431,14 @@ h1, h2, h3, p, dl, dd, figure { margin: 0; }
   border-top: 1px solid var(--line);
   padding-top: 3px;
 }
+.en-text {
+  font-family: Georgia, "Times New Roman", "Hiragino Sans", serif;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.en-text strong {
+  color: var(--ink);
+}
 .related-buttons {
   display: flex;
   flex-wrap: wrap;

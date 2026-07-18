@@ -1,6 +1,7 @@
 const DATA = window.SHAKAI_KOTOBA_DATA;
 const ZUKAI = window.SHAKAI_ZUKAI || {};
 const ILLUST = window.SHAKAI_ILLUST || {};
+const EN = window.SHAKAI_KOTOBA_EN || {};
 const terms = DATA.terms;
 const tagMap = new Map(DATA.thinkingTags.map((tag) => [tag.id, tag]));
 
@@ -85,7 +86,8 @@ function getFilteredTerms() {
       term.category,
       term.meaning,
       term.example,
-      term.relatedTerms.join("")
+      term.relatedTerms.join(""),
+      EN[term.id] ? EN[term.id].join(" ") : ""
     ].join(""));
 
     return (
@@ -153,6 +155,9 @@ function openTerm(termId) {
     <dl class="term-detail">
       <dt>意味</dt>
       <dd>${escapeHtml(term.meaning)}</dd>
+      ${EN[term.id] ? `
+      <dt>English</dt>
+      <dd class="en-text"><strong>${escapeHtml(EN[term.id][0])}</strong><span class="en-sep"> — </span>${escapeHtml(EN[term.id][1])}</dd>` : ""}
       <dt>例文</dt>
       <dd>${escapeHtml(term.example)}</dd>
       <dt>関連する言葉</dt>
@@ -167,7 +172,7 @@ function openTerm(termId) {
       </dd>
     </dl>
     <div class="dialog-foot">
-      <span>学習指導要領・教科書・年間指導計画を参考に作成</span>
+      <span>学習指導要領・教科書・年間指導計画を参考に作成／英語はAIによる翻訳です</span>
       <a href="${CORRECTION_FORM_URL}" target="_blank" rel="noopener">まちがいを見つけたら教える</a>
     </div>
   `;
